@@ -41,10 +41,11 @@ const Login = () => {
     return (
         <div className="login-container">
             <div className="login-form">
-                <h2>Login</h2>
+                <h2>Welcome Back</h2>
+                <p>Please enter your details to login.</p>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="email">Email Address</label>
                         <input
                             type="email"
                             id="email"

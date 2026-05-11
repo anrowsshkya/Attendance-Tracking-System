@@ -1,11 +1,12 @@
 import React from 'react';
-import Todo from './Todo';
 import './App.css';
+import Login from "./Login";
 
+// Main App component
 function App() {
   return (
     <div className="App">
-      <Todo />
+      <Login />
     </div>
   );
 }
