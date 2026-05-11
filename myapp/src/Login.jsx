@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
 import './Login.css';
 
-const Login = () => {
+const LOGIN_API_URL = 'https://devplat.heraldcollege.edu.np/herald-auth/auth/login';
+
+const Login = ({ onLoginSuccess }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
+    const [apiError, setApiError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const validateEmail = (email) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(String(email).toLowerCase());
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setApiError('');
+        setSuccessMessage('');
         const newErrors = {};
 
         if (!email) {
@@ -28,9 +35,38 @@ const Login = () => {
 
         setErrors(newErrors);
 
-        if (Object.keys(newErrors).length === 0) {
-            // Simulate login success
-            alert('Login successful!');
+        if (Object.keys(newErrors).length > 0) {
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(LOGIN_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (response.ok) {
+                setSuccessMessage('Login successful.');
+                setEmail('');
+                setPassword('');
+            } else {
+                const errorText = await response.text();
+                setApiError(
+                    errorText
+                        ? `Login failed: ${errorText}`
+                        : `Login failed with status ${response.status}`
+                );
+            }
+        } catch (error) {
+            setApiError(`Network error: ${error.message}`);
+        } finally {
+            setLoading(false);
+            onLoginSuccess();
         }
     };
 
@@ -73,7 +109,12 @@ const Login = () => {
                         {errors.password && <span className="error-message">{errors.password}</span>}
                     </div>
 
-                    <button type="submit" className="login-btn">Login</button>
+                    {apiError && <div className="api-error">{apiError}</div>}
+                    {successMessage && <div className="success-message">{successMessage}</div>}
+
+                    <button type="submit" className="login-btn" disabled={loading}>
+                        {loading ? 'Logging in...' : 'Login'}
+                    </button>
                 </form>
             </div>
         </div>
